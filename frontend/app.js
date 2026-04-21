@@ -1,5 +1,5 @@
 // ── API base (Java server runs on 8080)
-const BASE = 'http://localhost:8080';
+const BASE = '';
 
 // ── Fetch helper
 async function api(endpoint, method = 'GET', body = null) {
