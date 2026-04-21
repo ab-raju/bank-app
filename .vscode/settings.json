@@ -1,0 +1,10 @@
+{
+    "java.project.sourcePaths": [
+        "backend"
+    ],
+    "java.project.outputPath": "out",
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "c:\\Users\\abraj\\OneDrive\\Documents\\#Java\\Projects\\BankApp\\lib\\mysql-connector-j-9.6.0.jar"
+    ]
+}

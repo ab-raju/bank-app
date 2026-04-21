@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bank Of Bharat - Admin</title>
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><defs><linearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22><stop offset=%220%25%22 stop-color=%22%23f5d97b%22/><stop offset=%22100%25%22 stop-color=%22%23b8860b%22/></linearGradient></defs><circle cx=%2250%22 cy=%2250%22 r=%2248%22 fill=%22url(%23g)%22/><text x=%2250%22 y=%2258%22 text-anchor=%22middle%22 font-size=%2262%22 font-family=%22Arial%22 fill=%22white%22>₹</text></svg>"><link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><defs><linearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22><stop offset=%220%25%22 stop-color=%22%23f5d97b%22/><stop offset=%22100%25%22 stop-color=%22%23b8860b%22/></linearGradient></defs><circle cx=%2250%22 cy=%2250%22 r=%2248%22 fill=%22url(%23g)%22/><text x=%2250%22 y=%2252%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 font-size=%2260%22 font-family=%22Arial%22 fill=%22white%22>₹</text></svg>">
+
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- Admin Login Gate -->
+<div id="gate" class="modal">
+  <div class="modal-box">
+    <div class="brand" style="justify-content:center;margin-bottom:1.5rem">
+      <div class="brand-icon">₹</div>
+      <span class="brand-name" style="color:var(--text)">Bank Of Bharat Admin</span>
+    </div>
+    <div id="gateMsg" class="msg hidden"></div>
+    <div class="field"><label>Admin Password</label><input type="password" id="adminPass" placeholder="Enter password"/></div>
+    <button class="btn" onclick="doAdminLogin()">Enter Panel</button>
+    <div class="auth-foot"><p><a href="index.html">← Back to Login</a></p></div>
+  </div>
+</div>
+
+<!-- Admin Panel -->
+<div id="panel" class="dash-wrap hidden">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">₹</div>
+      <span class="brand-name">Admin</span>
+    </div>
+    <nav class="nav" id="adminNav">
+      <a href="#" class="active" data-sec="accounts"><span class="nav-ic">◈</span><span>All Accounts</span></a>
+      <a href="#" data-sec="txns">    <span class="nav-ic">≡</span><span>All Transactions</span></a>
+      <a href="#" data-sec="delreqs"><span class="nav-ic">🗑</span><span>Delete Requests</span></a>
+    </nav>
+    <a href="index.html" class="btn-logout" style="display:block;text-decoration:none">← Exit</a>
+  </aside>
+
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <p class="topbar-greet">Logged in as</p>
+        <h2 class="topbar-name">Administrator</h2>
+      </div>
+    </div>
+
+    <!-- ALL ACCOUNTS -->
+    <div class="sec active" id="sec-accounts">
+      <p class="sec-title">All Accounts</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Acc No</th><th>Name</th><th>Type</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="accTbody"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ALL TRANSACTIONS -->
+    <div class="sec" id="sec-txns">
+      <p class="sec-title">All Transactions</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Acc No</th><th>Type</th><th>Amount</th><th>Balance After</th><th>Date</th></tr></thead>
+          <tbody id="txnTbody"><tr><td colspan="6" class="empty">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DELETE REQUESTS -->
+    <div class="sec" id="sec-delreqs">
+      <p class="sec-title">Account Delete Requests</p>
+
+      <!-- Success message shown after accepting -->
+      <div id="deleteAcceptMsg" class="msg hidden"></div>
+
+      <div class="tbl-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Req ID</th>
+              <th>Acc No</th>
+              <th>Customer Name</th>
+              <th>Requested At</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="delReqTbody">
+            <tr><td colspan="6" class="empty">Loading...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+
+  async function doAdminLogin() {
+    const pass = document.getElementById('adminPass').value.trim();
+    const r = await api('/api/admin/login','POST',{password:pass});
+    if (r.success) {
+      document.getElementById('gate').classList.add('hidden');
+      document.getElementById('panel').classList.remove('hidden');
+      document.getElementById('panel').style.display = 'flex';
+      loadAccounts();
+    } else {
+      showMsg('gateMsg', r.message || 'Incorrect password.', 'err');
+    }
+  }
+
+  document.getElementById('adminPass').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doAdminLogin();
+  });
+
+  // ── Nav switching ──
+  document.getElementById('adminNav').querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelectorAll('#adminNav a').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+      a.classList.add('active');
+      document.getElementById('sec-' + a.dataset.sec).classList.add('active');
+      if (a.dataset.sec === 'accounts') loadAccounts();
+      if (a.dataset.sec === 'txns')     loadTxns();
+      if (a.dataset.sec === 'delreqs')  loadDeleteRequests();
+    });
+  });
+
+  // ── All Accounts ──
+  async function loadAccounts() {
+    const r = await api('/api/admin/accounts');
+    const tb = document.getElementById('accTbody');
+    if (r.success && r.accounts.length) {
+      tb.innerHTML = r.accounts.map(a => `<tr>
+        <td>${a.accountNo}</td>
+        <td>${a.name}</td>
+        <td>${a.accountType}</td>
+        <td>₹${fmt(a.balance)}</td>
+        <td><span class="s-${a.status.toLowerCase()}">${a.status}</span></td>
+        <td>${a.status==='ACTIVE'
+          ? `<button class="btn-sm btn-freeze" onclick="setStatus(${a.accountNo},'FROZEN')">Freeze</button>`
+          : `<button class="btn-sm btn-unfreeze" onclick="setStatus(${a.accountNo},'ACTIVE')">Unfreeze</button>`
+        }</td>
+      </tr>`).join('');
+    } else {
+      tb.innerHTML = '<tr><td colspan="6" class="empty">No accounts found.</td></tr>';
+    }
+  }
+
+  async function setStatus(accNo, status) {
+    const r = await api('/api/admin/updatestatus','POST',{accountNo:accNo, status});
+    if (r.success) loadAccounts();
+    else alert(r.message);
+  }
+
+  // ── All Transactions ──
+  async function loadTxns() {
+    const r = await api('/api/admin/transactions');
+    const tb = document.getElementById('txnTbody');
+    if (r.success && r.transactions.length) {
+      tb.innerHTML = r.transactions.map((t,i) => `<tr>
+        <td>${i+1}</td>
+        <td>${t.accountNo}</td>
+        <td><span class="badge b-${t.txnType.toLowerCase()}">${t.txnType.replace('_',' ')}</span></td>
+        <td>₹${fmt(t.amount)}</td>
+        <td>₹${fmt(t.balanceAfter)}</td>
+        <td>${t.txnDate.substring(0,16)}</td>
+      </tr>`).join('');
+    } else {
+      tb.innerHTML = '<tr><td colspan="6" class="empty">No transactions found.</td></tr>';
+    }
+  }
+
+  // ── Delete Requests ──
+  async function loadDeleteRequests() {
+    const r = await api('/api/admin/deleterequests');
+    const tb = document.getElementById('delReqTbody');
+    if (r.success && r.requests.length) {
+      tb.innerHTML = r.requests.map(req => `<tr>
+        <td>${req.requestId}</td>
+        <td>${req.accountNo}</td>
+        <td>${req.customerName}</td>
+        <td>${req.requestedAt.substring(0,16)}</td>
+        <td><span class="${req.status === 'PENDING' ? 's-frozen' : 's-active'}">${req.status}</span></td>
+        <td>${req.status === 'PENDING'
+          ? `<button class="btn-sm btn-freeze" onclick="acceptDelete(${req.requestId}, '${req.customerName}', ${req.accountNo})">Accept & Delete</button>`
+          : '<span style="color:var(--green);font-weight:600">✅ Deleted</span>'
+        }</td>
+      </tr>`).join('');
+    } else {
+      tb.innerHTML = '<tr><td colspan="6" class="empty">No delete requests found.</td></tr>';
+    }
+  }
+
+  async function acceptDelete(requestId, customerName, accountNo) {
+    if (!confirm(`Accept delete request?\n\nCustomer : ${customerName}\nAccount  : ${accountNo}\n\nThis will permanently delete the account.`)) return;
+
+    const r = await api('/api/admin/acceptdelete','POST',{requestId});
+
+    if (r.success) {
+      // Show success message at top of section
+      const msg = document.getElementById('deleteAcceptMsg');
+      msg.textContent = `✅ Account #${accountNo} (${customerName}) has been successfully deleted.`;
+      msg.className = 'msg ok';
+
+      // Reload the table to reflect updated status
+      loadDeleteRequests();
+
+      // Hide success message after 5 seconds
+      setTimeout(() => { msg.className = 'msg hidden'; }, 5000);
+    } else {
+      alert('Error: ' + r.message);
+    }
+  }
+
+  function fmt(n) { return parseFloat(n).toLocaleString('en-IN',{minimumFractionDigits:2}); }
+
+</script>
+</body>
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Bank Of Bharat - Dashboard</title>
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><defs><linearGradient id=%22g%22 x1=%220%22 y1=%220%22 x2=%221%22 y2=%221%22><stop offset=%220%25%22 stop-color=%22%23f5d97b%22/><stop offset=%22100%25%22 stop-color=%22%23b8860b%22/></linearGradient></defs><circle cx=%2250%22 cy=%2250%22 r=%2248%22 fill=%22url(%23g)%22/><text x=%2250%22 y=%2258%22 text-anchor=%22middle%22 font-size=%2262%22 font-family=%22Arial%22 fill=%22white%22>₹</text></svg>">
+
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<div class="dash-wrap">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">₹</div>
+      <span class="brand-name">Bank Of Bharat</span>
+    </div>
+    <nav class="nav" id="nav">
+      <a href="#" class="active" data-sec="overview"><span class="nav-ic">◈</span><span>Overview</span></a>
+      <a href="#" data-sec="deposit">  <span class="nav-ic">↓</span><span>Deposit</span></a>
+      <a href="#" data-sec="withdraw"> <span class="nav-ic">↑</span><span>Withdraw</span></a>
+      <a href="#" data-sec="transfer"> <span class="nav-ic">⇄</span><span>Transfer</span></a>
+      <a href="#" data-sec="statement"><span class="nav-ic">≡</span><span>Statement</span></a>
+      <a href="#" data-sec="settings"> <span class="nav-ic">⚙</span><span>Settings</span></a>
+      <a href="#" data-sec="delete"  > <span class="nav-ic">🗑</span><span>Delete Account</span></a>
+    </nav>
+    <button class="btn-logout" onclick="logout()">← Logout</button>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="topbar">
+      <div>
+        <p class="topbar-greet">Good day,</p>
+        <h2 class="topbar-name" id="uName">—</h2>
+      </div>
+      <div class="topbar-acc">
+        <span class="acc-label">Account No</span>
+        <span class="acc-val" id="uAccNo">—</span>
+      </div>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="sec active" id="sec-overview">
+      <p class="sec-title">Overview</p>
+      <div class="cards">
+        <div class="sum-card gold">
+          <p class="sum-label">Current Balance</p>
+          <p class="sum-val" id="balVal">₹ —</p>
+          <p class="sum-sub" id="accType">—</p>
+        </div>
+        <div class="sum-card dark">
+          <p class="sum-label">Account Status</p>
+          <p class="sum-val" id="accStatus">—</p>
+          <p class="sum-sub" id="accNoSub">—</p>
+        </div>
+      </div>
+      <p class="sec-title">Recent Transactions</p>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Type</th><th>Amount</th><th>Balance After</th><th>Date</th></tr></thead>
+          <tbody id="miniTbody"><tr><td colspan="5" class="empty">Loading...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DEPOSIT -->
+    <div class="sec" id="sec-deposit">
+      <p class="sec-title">Deposit Money</p>
+      <div class="form-card">
+        <div id="depositMsg" class="msg hidden"></div>
+        <div class="field"><label>Amount (₹)</label><input type="number" id="depAmt" placeholder="Enter amount" min="1"/></div>
+        <button class="btn" onclick="doDeposit()">Deposit</button>
+      </div>
+    </div>
+
+    <!-- WITHDRAW -->
+    <div class="sec" id="sec-withdraw">
+      <p class="sec-title">Withdraw Money</p>
+      <div class="form-card">
+        <div id="withdrawMsg" class="msg hidden"></div>
+        <div class="field"><label>Amount (₹)</label><input type="number" id="wdAmt" placeholder="Enter amount" min="1"/></div>
+        <div class="field"><label>Confirm PIN</label><input type="password" id="wdPin" placeholder="Your PIN" maxlength="6"/></div>
+        <button class="btn" onclick="doWithdraw()">Withdraw</button>
+      </div>
+    </div>
+
+    <!-- TRANSFER -->
+    <div class="sec" id="sec-transfer">
+      <p class="sec-title">Fund Transfer</p>
+      <div class="form-card">
+        <div id="transferMsg" class="msg hidden"></div>
+        <div class="field"><label>To Account Number</label><input type="number" id="toAcc" placeholder="Recipient account no"/></div>
+        <div class="field"><label>Amount (₹)</label><input type="number" id="trAmt" placeholder="Enter amount" min="1"/></div>
+        <div class="field"><label>Confirm PIN</label><input type="password" id="trPin" placeholder="Your PIN" maxlength="6"/></div>
+        <button class="btn" onclick="doTransfer()">Transfer Now</button>
+      </div>
+    </div>
+
+    <!-- STATEMENT -->
+    <div class="sec" id="sec-statement">
+      <p class="sec-title">Full Statement</p>
+      <div class="form-card" style="max-width:500px">
+        <div class="row">
+          <div class="field"><label>From Date</label><input type="date" id="fromDate"/></div>
+          <div class="field"><label>To Date</label><input type="date" id="toDate"/></div>
+        </div>
+        <button class="btn" onclick="doStatement()">Get Statement</button>
+      </div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Type</th><th>Amount</th><th>Balance After</th><th>Description</th><th>Date</th></tr></thead>
+          <tbody id="stmtTbody"><tr><td colspan="6" class="empty">Select a date range above.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="sec" id="sec-settings">
+      <p class="sec-title">Change PIN</p>
+      <div class="form-card">
+        <div id="pinMsg" class="msg hidden"></div>
+        <div class="field"><label>Current PIN</label><input type="password" id="oldPin" maxlength="6" placeholder="Current PIN"/></div>
+        <div class="field"><label>New PIN</label><input type="password" id="newPin" maxlength="6" placeholder="New PIN (4-6 digits)"/></div>
+        <div class="field"><label>Confirm New PIN</label><input type="password" id="conPin" maxlength="6" placeholder="Re-enter new PIN"/></div>
+        <button class="btn" onclick="doChangePin()">Update PIN</button>
+      </div>
+    </div>
+
+    <!-- DELETE ACCOUNT -->
+    <div class="sec" id="sec-delete">
+      <p class="sec-title">Delete Account</p>
+
+      <!-- Status message box (shown when request is pending or accepted) -->
+      <div id="deleteStatusBox" class="msg hidden"></div>
+
+      <!-- Delete form (hidden once request is submitted) -->
+      <div class="form-card" id="deleteFormCard">
+        <p style="color:var(--red);font-weight:600;margin-bottom:0.5rem">⚠️ Warning</p>
+        <p style="color:var(--muted);font-size:0.9rem;margin-bottom:1.25rem">
+          Once you submit a delete request, the admin will review it and permanently close your account.
+          All your transactions will be erased. This action cannot be undone.
+        </p>
+        <div id="deleteMsg" class="msg hidden"></div>
+        <div class="field">
+          <label>Confirm PIN</label>
+          <input type="password" id="delPin" maxlength="6" placeholder="Enter your PIN to confirm"/>
+        </div>
+        <button class="btn" style="background:var(--red)" onclick="doDeleteRequest()">
+          Submit Delete Request
+        </button>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="app.js"></script>
+<script>
+  // Guard
+  const sess = getSession();
+  if (!sess) location.href = 'index.html';
+  const accNo = sess.accountNo;
+
+  // Populate header
+  document.getElementById('uName').textContent    = sess.name || sess.customerName;
+  document.getElementById('uAccNo').textContent   = accNo;
+  document.getElementById('accNoSub').textContent = 'Acc #' + accNo;
+  document.getElementById('accType').textContent  = sess.accountType;
+  document.getElementById('accStatus').textContent = sess.status;
+
+  // Nav switching
+  document.getElementById('nav').querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelectorAll('.nav a').forEach(x => x.classList.remove('active'));
+      document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+      a.classList.add('active');
+      document.getElementById('sec-' + a.dataset.sec).classList.add('active');
+      if (a.dataset.sec === 'overview') loadOverview();
+      if (a.dataset.sec === 'delete')   checkDeleteStatus();
+    });
+  });
+
+  // Load overview
+  async function loadOverview() {
+    const r = await api('/api/balance?accountNo=' + accNo);
+    if (r.success) document.getElementById('balVal').textContent = '₹ ' + fmt(r.balance);
+    const r2 = await api('/api/ministatement?accountNo=' + accNo);
+    const tb = document.getElementById('miniTbody');
+    if (r2.success && r2.transactions.length) {
+      tb.innerHTML = r2.transactions.map((t,i) => `<tr>
+        <td>${i+1}</td>
+        <td><span class="badge b-${t.txnType.toLowerCase()}">${t.txnType.replace('_',' ')}</span></td>
+        <td>₹${fmt(t.amount)}</td>
+        <td>₹${fmt(t.balanceAfter)}</td>
+        <td>${t.txnDate.substring(0,16)}</td>
+      </tr>`).join('');
+    } else {
+      tb.innerHTML = '<tr><td colspan="5" class="empty">No transactions yet.</td></tr>';
+    }
+  }
+  loadOverview();
+
+  // Actions
+  async function doDeposit() {
+    const amt = document.getElementById('depAmt').value;
+    if (!amt) { showMsg('depositMsg','Enter amount.','err'); return; }
+    const r = await api('/api/deposit','POST',{accountNo:accNo, amount:amt});
+    showMsg('depositMsg', r.success ? '₹'+fmt(amt)+' deposited!' : r.message, r.success?'ok':'err');
+    if (r.success) { document.getElementById('depAmt').value=''; loadOverview(); }
+  }
+
+  async function doWithdraw() {
+    const amt = document.getElementById('wdAmt').value;
+    const pin = document.getElementById('wdPin').value;
+    if (!amt||!pin) { showMsg('withdrawMsg','Fill all fields.','err'); return; }
+    const r = await api('/api/withdraw','POST',{accountNo:accNo, amount:amt, pin});
+    showMsg('withdrawMsg', r.success ? '₹'+fmt(amt)+' withdrawn!' : r.message, r.success?'ok':'err');
+    if (r.success) { document.getElementById('wdAmt').value=''; document.getElementById('wdPin').value=''; loadOverview(); }
+  }
+
+  async function doTransfer() {
+    const to  = document.getElementById('toAcc').value;
+    const amt = document.getElementById('trAmt').value;
+    const pin = document.getElementById('trPin').value;
+    if (!to||!amt||!pin) { showMsg('transferMsg','Fill all fields.','err'); return; }
+    const r = await api('/api/transfer','POST',{fromAccNo:accNo, toAccNo:to, amount:amt, pin});
+    showMsg('transferMsg', r.success ? '₹'+fmt(amt)+' transferred to Acc #'+to+'!' : r.message, r.success?'ok':'err');
+    if (r.success) { document.getElementById('toAcc').value=''; document.getElementById('trAmt').value=''; document.getElementById('trPin').value=''; loadOverview(); }
+  }
+
+  async function doStatement() {
+    const from = document.getElementById('fromDate').value;
+    const to   = document.getElementById('toDate').value;
+    if (!from||!to) { alert('Select both dates.'); return; }
+    const r = await api(`/api/statement?accountNo=${accNo}&fromDate=${from}&toDate=${to}`);
+    const tb = document.getElementById('stmtTbody');
+    if (r.success && r.transactions.length) {
+      tb.innerHTML = r.transactions.map((t,i) => `<tr>
+        <td>${i+1}</td>
+        <td><span class="badge b-${t.txnType.toLowerCase()}">${t.txnType.replace('_',' ')}</span></td>
+        <td>₹${fmt(t.amount)}</td>
+        <td>₹${fmt(t.balanceAfter)}</td>
+        <td>${t.description||'—'}</td>
+        <td>${t.txnDate.substring(0,16)}</td>
+      </tr>`).join('');
+    } else {
+      tb.innerHTML = '<tr><td colspan="6" class="empty">No transactions in this period.</td></tr>';
+    }
+  }
+
+  async function doChangePin() {
+    const oldPin = document.getElementById('oldPin').value;
+    const newPin = document.getElementById('newPin').value;
+    const conPin = document.getElementById('conPin').value;
+    if (!oldPin||!newPin||!conPin) { showMsg('pinMsg','Fill all fields.','err'); return; }
+    const r = await api('/api/changepin','POST',{accountNo:accNo, oldPin, newPin, confirmPin:conPin});
+    showMsg('pinMsg', r.success ? 'PIN updated successfully!' : r.message, r.success?'ok':'err');
+    if (r.success) { document.getElementById('oldPin').value=''; document.getElementById('newPin').value=''; document.getElementById('conPin').value=''; }
+  }
+
+  // ── DELETE ACCOUNT ──
+  async function checkDeleteStatus() {
+    const r = await api('/api/deletestatus?accountNo=' + accNo);
+    if (!r.success) return;
+
+    const box  = document.getElementById('deleteStatusBox');
+    const form = document.getElementById('deleteFormCard');
+
+    if (r.status === 'PENDING') {
+      box.textContent  = '⏳ Your delete request is pending. Waiting for admin approval.';
+      box.className    = 'msg';
+      box.style.background = '#fff3cd';
+      box.style.color      = '#856404';
+      form.style.display   = 'none';
+
+    } else if (r.status === 'ACCEPTED') {
+      box.textContent  = '✅ Your account delete request has been accepted by the admin. You will be logged out now.';
+      box.className    = 'msg ok';
+      form.style.display = 'none';
+      setTimeout(() => { clearSession(); location.href = 'index.html'; }, 3000);
+
+    } else {
+      // NONE — show the form normally
+      box.className      = 'msg hidden';
+      form.style.display = 'block';
+    }
+  }
+
+  async function doDeleteRequest() {
+    const pin = document.getElementById('delPin').value.trim();
+    if (!pin) { showMsg('deleteMsg','Enter your PIN to confirm.','err'); return; }
+    if (!confirm('Are you sure? This will permanently delete your account and cannot be undone.')) return;
+
+    const r = await api('/api/requestdelete','POST',{accountNo:accNo, pin});
+    if (r.success) {
+      document.getElementById('deleteFormCard').style.display = 'none';
+      const box = document.getElementById('deleteStatusBox');
+      box.textContent      = '⏳ Delete request submitted successfully! Waiting for admin approval.';
+      box.className        = 'msg';
+      box.style.background = '#fff3cd';
+      box.style.color      = '#856404';
+    } else {
+      showMsg('deleteMsg', r.message, 'err');
+    }
+  }
+
+  function logout() { clearSession(); location.href = 'index.html'; }
+  function fmt(n) { return parseFloat(n).toLocaleString('en-IN',{minimumFractionDigits:2}); }
+</script>
+</body>
+</html>
